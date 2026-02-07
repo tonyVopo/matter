@@ -20,6 +20,7 @@
 #include "tls-certificate-management-instance.h"
 #include "tls-client-management-instance.h"
 #include <app/clusters/push-av-stream-transport-server/CodegenIntegration.h>
+#include <app/persistence/AttributePersistenceProviderInstance.h>
 
 using namespace chip;
 using namespace chip::app;
@@ -62,7 +63,8 @@ CameraApp::CameraApp(chip::EndpointId aClustersEndpoint, CameraDeviceInterface *
     const uint8_t appMaxPresets = 5;
 
     // Instantiate the CameraAVSettingsUserLevelMgmt Server
-    mAVSettingsUserLevelMgmtServer.Create(mEndpoint, avsumFeatures, appMaxPresets);
+    mAVSettingsUserLevelMgmtServer.Create(CameraAvSettingsUserLevelManagementCluster::Context{ *GetAttributePersistenceProvider() },
+                                          mEndpoint, avsumFeatures, appMaxPresets);
     mAVSettingsUserLevelMgmtServer.Cluster().SetDelegate(&mCameraDevice->GetCameraAVSettingsUserLevelMgmtDelegate());
     CHIP_ERROR err = CodegenDataModelProvider::Instance().Registry().Register(mAVSettingsUserLevelMgmtServer.Registration());
     if (err != CHIP_NO_ERROR)
