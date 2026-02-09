@@ -195,8 +195,8 @@ BooleanStateConfigurationCluster::InvokeCommand(const DataModel::InvokeRequest &
         if (mAlarmsSuppressed.HasAny(alarmsToDisable))
         {
             mAlarmsSuppressed.Clear(alarmsToDisable);
-            NotifyAttributeChangedAndCallDelegate(AlarmsSuppressed::Id,
-                                                  [this](auto * delegate) { delegate->OnAlarmsSuppressedChanged(mAlarmsSuppressed); });
+            NotifyAttributeChangedAndCallDelegate(
+                AlarmsSuppressed::Id, [this](auto * delegate) { delegate->OnAlarmsSuppressedChanged(mAlarmsSuppressed); });
             generateEvent = true;
         }
 
@@ -311,8 +311,9 @@ CHIP_ERROR BooleanStateConfigurationCluster::SetCurrentSensitivityLevel(uint8_t 
     VerifyOrReturnError(mCurrentSensitivityLevel != level, CHIP_NO_ERROR);
 
     mCurrentSensitivityLevel = level;
-    NotifyAttributeChangedAndCallDelegate(CurrentSensitivityLevel::Id,
-                                          [this](auto * delegate) { delegate->OnCurrentSensitivityLevelChanged(mCurrentSensitivityLevel); });
+    NotifyAttributeChangedAndCallDelegate(CurrentSensitivityLevel::Id, [this](auto * delegate) {
+        delegate->OnCurrentSensitivityLevelChanged(mCurrentSensitivityLevel);
+    });
 
     // TODO: we should migrate this to not use `Safe` attribute persistence and use
     //       a common persistence layer.

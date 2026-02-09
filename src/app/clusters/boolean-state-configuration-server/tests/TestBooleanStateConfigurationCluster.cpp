@@ -539,7 +539,7 @@ private:
     bool mSensorFaultCalled = false;
     chip::BitMask<BooleanStateConfiguration::SensorFaultBitmap> mSensorFaultValue{};
 
-    bool mSuppressAlarmCalled = false;
+    bool mSuppressAlarmCalled                                      = false;
     BooleanStateConfiguration::AlarmModeBitmap mSuppressAlarmValue = BooleanStateConfiguration::AlarmModeBitmap::kVisual;
 
     bool mEnableDisableAlarmsCalled = false;
