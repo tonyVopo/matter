@@ -162,6 +162,14 @@ bool emberAfHandleEventTrigger(uint64_t eventTrigger)
         ChipLogProgress(Support, "[Smoke-CO-Alarm-Test-Event] => Clear Smoke Sensitivity");
         SmokeCoAlarmServer::Instance().SetSmokeSensitivityLevel(1, SensitivityEnum::kStandard);
         break;
+    case SmokeCOTrigger::kForceUnmountedState:
+        ChipLogProgress(Support, "[Smoke-CO-Alarm-Test-Event] => Force Unmounted State");
+        SmokeCoAlarmServer::Instance().SetUnmountedState(1, true);
+        break;
+    case SmokeCOTrigger::kClearUnmountedState:
+        ChipLogProgress(Support, "[Smoke-CO-Alarm-Test-Event] => Clear Unmounted State");
+        SmokeCoAlarmServer::Instance().SetUnmountedState(1, false);
+        break;
     default:
 
         return false;
