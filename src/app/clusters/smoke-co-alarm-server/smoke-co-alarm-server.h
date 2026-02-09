@@ -76,6 +76,7 @@ public:
     bool SetInterconnectCOAlarm(chip::EndpointId endpointId, AlarmStateEnum newInterconnectCOAlarm);
     bool SetContaminationState(chip::EndpointId endpointId, ContaminationStateEnum newContaminationState);
     bool SetSmokeSensitivityLevel(chip::EndpointId endpointId, SensitivityEnum newSmokeSensitivityLevel);
+    bool SetUnmountedState(chip::EndpointId endpointId, bool isUnmounted);
 
     bool GetExpressedState(chip::EndpointId endpointId, ExpressedStateEnum & expressedState);
     bool GetSmokeState(chip::EndpointId endpointId, AlarmStateEnum & smokeState);
@@ -90,6 +91,7 @@ public:
     bool GetContaminationState(chip::EndpointId endpointId, ContaminationStateEnum & contaminationState);
     bool GetSmokeSensitivityLevel(chip::EndpointId endpointId, SensitivityEnum & smokeSensitivityLevel);
     bool GetExpiryDate(chip::EndpointId endpointId, uint32_t & expiryDate);
+    bool GetUnmountedState(chip::EndpointId endpointId, bool & unmountedState);
 
     chip::BitFlags<Feature> GetFeatures(chip::EndpointId endpointId);
 
