@@ -296,7 +296,7 @@ private:
 #endif
     ScanCallback * mpScanCallback;
     ConnectCallback * mpConnectCallback;
-    NetworkStatusChangeCallback * mpStatusChangeCallback = nullptr;
+    NetworkStatusChangeCallback * mpStatusChangeCallback;
 };
 
 #if CHIP_DEVICE_CONFIG_ENABLE_WPA
