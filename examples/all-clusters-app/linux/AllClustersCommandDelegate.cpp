@@ -580,7 +580,7 @@ void AllClustersAppCommandHandler::HandleCommand(intptr_t context)
     {
         uint8_t unmounted   = static_cast<uint8_t>(self->mJsonValue["Unmounted"].asUInt());
         EndpointId endpoint = static_cast<EndpointId>(self->mJsonValue["EndpointId"].asUInt());
-        TEMPORARY_RETURN_IGNORED SmokeCoAlarmServer::Instance().SetInoperativeWhenUnmounted(endpoint, true);
+        TEMPORARY_RETURN_IGNORED SmokeCoAlarmServer::Instance().SetInoperativeWhenUnmounted(true);
         if (1 == unmounted || 0 == unmounted)
         {
             TEMPORARY_RETURN_IGNORED SmokeCoAlarmServer::Instance().SetUnmountedState(endpoint, unmounted);

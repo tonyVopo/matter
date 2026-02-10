@@ -341,6 +341,7 @@ bool SmokeCoAlarmServer::SetSmokeSensitivityLevel(EndpointId endpointId, Sensiti
 
 bool SmokeCoAlarmServer::SetUnmountedState(EndpointId endpointId, bool isUnmounted)
 {
+    VerifyOrReturnValue(SetAttribute(endpointId, Unmounted::Id, Unmounted::Set, isUnmounted), false);
     if (mInoperativeWhenUnmounted)
     {
         if (isUnmounted)
@@ -357,8 +358,6 @@ bool SmokeCoAlarmServer::SetUnmountedState(EndpointId endpointId, bool isUnmount
             }
         }
     }
-
-    VerifyOrReturnValue(SetAttribute(endpointId, Unmounted::Id, Unmounted::Set, isUnmounted), false);
 
     return true;
 }

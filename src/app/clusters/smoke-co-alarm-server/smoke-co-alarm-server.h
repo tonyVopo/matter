@@ -77,7 +77,7 @@ public:
     bool SetContaminationState(chip::EndpointId endpointId, ContaminationStateEnum newContaminationState);
     bool SetSmokeSensitivityLevel(chip::EndpointId endpointId, SensitivityEnum newSmokeSensitivityLevel);
     bool SetUnmountedState(chip::EndpointId endpointId, bool isUnmounted);
-    void SetInoperativeWhenUnmounted(chip::EndpointId endpointId, bool inoperative) { mInoperativeWhenUnmounted = inoperative; }
+    void SetInoperativeWhenUnmounted(bool inoperative) { mInoperativeWhenUnmounted = inoperative; }
 
     bool GetExpressedState(chip::EndpointId endpointId, ExpressedStateEnum & expressedState);
     bool GetSmokeState(chip::EndpointId endpointId, AlarmStateEnum & smokeState);
@@ -93,7 +93,7 @@ public:
     bool GetSmokeSensitivityLevel(chip::EndpointId endpointId, SensitivityEnum & smokeSensitivityLevel);
     bool GetExpiryDate(chip::EndpointId endpointId, uint32_t & expiryDate);
     bool GetUnmountedState(chip::EndpointId endpointId, bool & unmountedState);
-    void GetInoperativeWhenUnmounted(chip::EndpointId endpointId, bool & inoperative) { inoperative = mInoperativeWhenUnmounted; }
+    void GetInoperativeWhenUnmounted(bool & inoperative) { inoperative = mInoperativeWhenUnmounted; }
 
     chip::BitFlags<Feature> GetFeatures(chip::EndpointId endpointId);
 
