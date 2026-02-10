@@ -63,6 +63,25 @@ ConnectivityManagerImpl & ConnectivityManagerImpl::GetDefaultInstance()
     return sInstance;
 }
 
+// MARK: Linux Implementation-specific Methods
+
+// MARK: Mutation
+
+void ConnectivityManagerImpl::SetConnectCallback(ConnectCallback * inConnectCallback) noexcept
+{
+    mpConnectCallback = inConnectCallback;
+}
+
+void ConnectivityManagerImpl::SetScanCallback(ScanCallback * inScanCallback) noexcept
+{
+    mpScanCallback = inScanCallback;
+}
+
+void ConnectivityManagerImpl::SetNetworkStatusChangeCallback(NetworkStatusChangeCallback * inStatusChangeCallback) noexcept
+{
+    mpStatusChangeCallback = inStatusChangeCallback;
+}
+
 void ConnectivityManagerImpl::UpdateEthernetNetworkingStatus()
 {
     if (mpStatusChangeCallback != nullptr)
