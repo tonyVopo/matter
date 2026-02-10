@@ -24,9 +24,9 @@ using namespace chip::app::Clusters::SmokeCoAlarm;
 using namespace chip::DeviceLayer;
 
 static std::array<ExpressedStateEnum, SmokeCoAlarmServer::kPriorityOrderLength> sPriorityOrder = {
-    ExpressedStateEnum::kSmokeAlarm,     ExpressedStateEnum::kInterconnectSmoke, ExpressedStateEnum::kCOAlarm,
-    ExpressedStateEnum::kInterconnectCO, ExpressedStateEnum::kHardwareFault,     ExpressedStateEnum::kTesting,
-    ExpressedStateEnum::kEndOfService,   ExpressedStateEnum::kBatteryAlert
+    ExpressedStateEnum::kInoperative, ExpressedStateEnum::kSmokeAlarm,     ExpressedStateEnum::kInterconnectSmoke,
+    ExpressedStateEnum::kCOAlarm,     ExpressedStateEnum::kInterconnectCO, ExpressedStateEnum::kHardwareFault,
+    ExpressedStateEnum::kTesting,     ExpressedStateEnum::kEndOfService,   ExpressedStateEnum::kBatteryAlert
 };
 
 CHIP_ERROR SmokeCoAlarmManager::Init()
@@ -164,11 +164,13 @@ bool emberAfHandleEventTrigger(uint64_t eventTrigger)
         break;
     case SmokeCOTrigger::kForceUnmountedState:
         ChipLogProgress(Support, "[Smoke-CO-Alarm-Test-Event] => Force Unmounted State");
-        SmokeCoAlarmServer::Instance().SetUnmountedState(1, true);
+        VerifyOrReturnValue(SmokeCoAlarmServer::Instance().SetUnmountedState(1, true), true);
+        SmokeCoAlarmServer::Instance().SetExpressedStateByPriority(1, sPriorityOrder);
         break;
     case SmokeCOTrigger::kClearUnmountedState:
         ChipLogProgress(Support, "[Smoke-CO-Alarm-Test-Event] => Clear Unmounted State");
-        SmokeCoAlarmServer::Instance().SetUnmountedState(1, false);
+        VerifyOrReturnValue(SmokeCoAlarmServer::Instance().SetUnmountedState(1, false), true);
+        SmokeCoAlarmServer::Instance().SetExpressedStateByPriority(1, sPriorityOrder);
         break;
     default:
 

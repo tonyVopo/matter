@@ -36,7 +36,7 @@ public:
     static SmokeCoAlarmServer & Instance();
 
     /* Expected byte size of the PriorityOrder */
-    static constexpr size_t kPriorityOrderLength = 8;
+    static constexpr size_t kPriorityOrderLength = 9;
 
     using AlarmStateEnum         = chip::app::Clusters::SmokeCoAlarm::AlarmStateEnum;
     using ContaminationStateEnum = chip::app::Clusters::SmokeCoAlarm::ContaminationStateEnum;
@@ -77,6 +77,7 @@ public:
     bool SetContaminationState(chip::EndpointId endpointId, ContaminationStateEnum newContaminationState);
     bool SetSmokeSensitivityLevel(chip::EndpointId endpointId, SensitivityEnum newSmokeSensitivityLevel);
     bool SetUnmountedState(chip::EndpointId endpointId, bool isUnmounted);
+    void SetInoperativeWhenUnmounted(chip::EndpointId endpointId, bool inoperative) { mInoperativeWhenUnmounted = inoperative; }
 
     bool GetExpressedState(chip::EndpointId endpointId, ExpressedStateEnum & expressedState);
     bool GetSmokeState(chip::EndpointId endpointId, AlarmStateEnum & smokeState);
@@ -92,6 +93,7 @@ public:
     bool GetSmokeSensitivityLevel(chip::EndpointId endpointId, SensitivityEnum & smokeSensitivityLevel);
     bool GetExpiryDate(chip::EndpointId endpointId, uint32_t & expiryDate);
     bool GetUnmountedState(chip::EndpointId endpointId, bool & unmountedState);
+    void GetInoperativeWhenUnmounted(chip::EndpointId endpointId, bool & inoperative) { inoperative = mInoperativeWhenUnmounted; }
 
     chip::BitFlags<Feature> GetFeatures(chip::EndpointId endpointId);
 
@@ -163,6 +165,7 @@ private:
         const chip::app::Clusters::SmokeCoAlarm::Commands::SelfTestRequest::DecodableType & commandData);
 
     static SmokeCoAlarmServer sInstance;
+    bool mInoperativeWhenUnmounted = false;
 };
 
 // =============================================================================

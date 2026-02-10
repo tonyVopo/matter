@@ -52,6 +52,7 @@ void SmokeCoAlarmServer::SetExpressedStateByPriority(EndpointId endpointId,
         EndOfServiceEnum endOfServiceState = EndOfServiceEnum::kNormal;
         bool active                        = false;
         bool success                       = false;
+        bool unmounted                     = false;
 
         switch (priority)
         {
@@ -79,11 +80,15 @@ void SmokeCoAlarmServer::SetExpressedStateByPriority(EndpointId endpointId,
         case ExpressedStateEnum::kInterconnectCO:
             success = GetInterconnectCOAlarm(endpointId, alarmState);
             break;
+        case ExpressedStateEnum::kInoperative:
+            success = GetUnmountedState(endpointId, unmounted);
+            break;
         default:
             break;
         }
 
-        if (success && ((alarmState != AlarmStateEnum::kNormal) || (endOfServiceState != EndOfServiceEnum::kNormal) || active))
+        if (success &&
+            ((alarmState != AlarmStateEnum::kNormal) || (endOfServiceState != EndOfServiceEnum::kNormal) || active || unmounted))
         {
             SetExpressedState(endpointId, priority);
             return;
@@ -336,19 +341,20 @@ bool SmokeCoAlarmServer::SetSmokeSensitivityLevel(EndpointId endpointId, Sensiti
 
 bool SmokeCoAlarmServer::SetUnmountedState(EndpointId endpointId, bool isUnmounted)
 {
-    if (isUnmounted)
+    if (mInoperativeWhenUnmounted)
     {
-        VerifyOrReturnValue(SetAttribute(endpointId, ExpressedState::Id, ExpressedState::Set, ExpressedStateEnum::kInoperative),
-                            false);
-    }
-    else
-    {
-        ExpressedStateEnum expressedState;
-        VerifyOrReturnValue(GetAttribute(endpointId, ExpressedState::Id, ExpressedState::Get, expressedState), false);
-        if (expressedState == ExpressedStateEnum::kInoperative)
+        if (isUnmounted)
         {
-            VerifyOrReturnValue(SetAttribute(endpointId, ExpressedState::Id, ExpressedState::Set, ExpressedStateEnum::kNormal),
-                                false);
+            SetExpressedState(endpointId, ExpressedStateEnum::kInoperative);
+        }
+        else
+        {
+            ExpressedStateEnum expressedState;
+            VerifyOrReturnValue(GetAttribute(endpointId, ExpressedState::Id, ExpressedState::Get, expressedState), false);
+            if (expressedState == ExpressedStateEnum::kInoperative)
+            {
+                SetExpressedState(endpointId, ExpressedStateEnum::kNormal);
+            }
         }
     }
 

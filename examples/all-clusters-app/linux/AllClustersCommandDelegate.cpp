@@ -576,6 +576,20 @@ void AllClustersAppCommandHandler::HandleCommand(intptr_t context)
     {
         TEMPORARY_RETURN_IGNORED Server::GetInstance().GetCommissioningWindowManager().OpenBasicCommissioningWindow();
     }
+    else if (name == "SetUnmounted")
+    {
+        uint8_t unmounted   = static_cast<uint8_t>(self->mJsonValue["Unmounted"].asUInt());
+        EndpointId endpoint = static_cast<EndpointId>(self->mJsonValue["EndpointId"].asUInt());
+        TEMPORARY_RETURN_IGNORED SmokeCoAlarmServer::Instance().SetInoperativeWhenUnmounted(endpoint, true);
+        if (1 == unmounted || 0 == unmounted)
+        {
+            TEMPORARY_RETURN_IGNORED SmokeCoAlarmServer::Instance().SetUnmountedState(endpoint, unmounted);
+        }
+        else
+        {
+            ChipLogError(NotSpecified, "Invalid Unmounted state to set.");
+        }
+    }
     else
     {
         ChipLogError(NotSpecified, "Unhandled command '%s': this should never happen", name.c_str());
