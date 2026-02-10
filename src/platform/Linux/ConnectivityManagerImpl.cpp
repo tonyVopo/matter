@@ -148,6 +148,24 @@ CHIP_ERROR ConnectivityManagerImpl::_Init()
 #endif
 }
 
+#if CHIP_DEVICE_CONFIG_ENABLE_WIFI
+// MARK: Wi-Fi Control Plane Management
+
+// MARK: Wi-Fi Station Control Plane Management
+
+// MARK: Introspection
+
+bool ConnectivityManagerImpl::IsWiFiStationConnecting(void) const noexcept
+{
+    return mpConnectCallback != nullptr;
+}
+
+bool ConnectivityManagerImpl::IsWiFiStationScanning(void) const noexcept
+{
+    return mpScanCallback != nullptr;
+}
+#endif // CHIP_DEVICE_CONFIG_ENABLE_WIFI
+
 void ConnectivityManagerImpl::_OnPlatformEvent(const ChipDeviceEvent * event)
 {
     // Forward the event to the generic base classes as needed.
