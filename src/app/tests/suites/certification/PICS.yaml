@@ -6129,8 +6129,7 @@ PICS:
           device?"
       id: SMOKECO.M.ManuallyControlledMute
 
-    - label:
-          "Does unmounting the device makes it inoperative?"
+    - label: "Does unmounting the device makes it inoperative?"
       id: SMOKECO.M.InoperativeWhenUnmounted
 
     #
