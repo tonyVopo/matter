@@ -444,6 +444,9 @@ NSString * MTRClusterNameForID(MTRClusterIDType clusterID)
     case MTRClusterIDTypeSampleMEIID:
         result = @"SampleMEI";
         break;
+    case MTRClusterIDTypeTestHiddenManufacturerSpecificID:
+        result = @"TestHiddenManufacturerSpecific";
+        break;
 
     default:
         result = [NSString stringWithFormat:@"<Unknown clusterID %u>", clusterID];
@@ -9673,6 +9676,42 @@ NSString * MTRAttributeNameForID(MTRClusterIDType clusterID, MTRAttributeIDType 
         }
         break;
 
+    case MTRClusterIDTypeTestHiddenManufacturerSpecificID:
+
+        switch (attributeID) {
+
+            // Cluster TestHiddenManufacturerSpecific attributes
+        case MTRAttributeIDTypeClusterTestHiddenManufacturerSpecificAttributeTestAttributeID:
+            result = @"TestAttribute";
+            break;
+
+        case MTRAttributeIDTypeClusterTestHiddenManufacturerSpecificAttributeGeneratedCommandListID:
+            result = @"GeneratedCommandList";
+            break;
+
+        case MTRAttributeIDTypeClusterTestHiddenManufacturerSpecificAttributeAcceptedCommandListID:
+            result = @"AcceptedCommandList";
+            break;
+
+        case MTRAttributeIDTypeClusterTestHiddenManufacturerSpecificAttributeAttributeListID:
+            result = @"AttributeList";
+            break;
+
+        case MTRAttributeIDTypeClusterTestHiddenManufacturerSpecificAttributeFeatureMapID:
+            result = @"FeatureMap";
+            break;
+
+        case MTRAttributeIDTypeClusterTestHiddenManufacturerSpecificAttributeClusterRevisionID:
+            result = @"ClusterRevision";
+            break;
+
+        default:
+            // Not a known TestHiddenManufacturerSpecific attribute.
+            result = [NSString stringWithFormat:@"<Unknown attributeID %u>", attributeID];
+            break;
+        }
+        break;
+
     default:
         result = [NSString stringWithFormat:@"<Unknown clusterID %u>", clusterID];
         break;
@@ -12643,6 +12682,16 @@ NSString * MTRRequestCommandNameForID(MTRClusterIDType clusterID, MTRCommandIDTy
         }
         break;
 
+    case MTRClusterIDTypeTestHiddenManufacturerSpecificID:
+
+        switch (commandID) {
+
+        default:
+            result = [NSString stringWithFormat:@"<Unknown commandID %u>", commandID];
+            break;
+        }
+        break;
+
     default:
         result = [NSString stringWithFormat:@"<Unknown clusterID %u>", clusterID];
         break;
@@ -14500,6 +14549,16 @@ NSString * MTRResponseCommandNameForID(MTRClusterIDType clusterID, MTRCommandIDT
         case MTRCommandIDTypeClusterSampleMEICommandAddArgumentsResponseID:
             result = @"AddArgumentsResponse";
             break;
+
+        default:
+            result = [NSString stringWithFormat:@"<Unknown commandID %u>", commandID];
+            break;
+        }
+        break;
+
+    case MTRClusterIDTypeTestHiddenManufacturerSpecificID:
+
+        switch (commandID) {
 
         default:
             result = [NSString stringWithFormat:@"<Unknown commandID %u>", commandID];
@@ -16508,6 +16567,16 @@ NSString * MTREventNameForID(MTRClusterIDType clusterID, MTREventIDType eventID)
         case MTREventIDTypeClusterSampleMEIEventPingCountEventID:
             result = @"PingCountEvent";
             break;
+
+        default:
+            result = [NSString stringWithFormat:@"<Unknown eventID %u>", eventID];
+            break;
+        }
+        break;
+
+    case MTRClusterIDTypeTestHiddenManufacturerSpecificID:
+
+        switch (eventID) {
 
         default:
             result = [NSString stringWithFormat:@"<Unknown eventID %u>", eventID];
