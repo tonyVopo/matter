@@ -348,7 +348,10 @@ CHIP_ERROR AccessControl::Check(const SubjectDescriptor & subjectDescriptor, con
         result = CheckARL(subjectDescriptor, requestPath, requestPrivilege);
     }
 #endif
-
+    if ((CHIP_NO_ERROR == result) && (CHIP_NO_ERROR == mAuxChecker.Check(subjectDescriptor, requestPath, requestPrivilege)))
+    {
+        return CHIP_NO_ERROR;
+    }
     return result;
 }
 
