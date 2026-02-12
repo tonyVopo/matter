@@ -140,12 +140,11 @@ if (wifi_soc != true) {  # CCP board
         "${sl_ot_efr32_root}/alarm.c",
         "${sl_ot_efr32_root}/crypto.c",
         "${sl_ot_efr32_root}/entropy.c",
-        "${sl_ot_efr32_root}/flash.c",
         "${sl_ot_efr32_root}/ieee802154-packet-utils.cpp",
         "${sl_ot_efr32_root}/misc.c",
         "${sl_ot_efr32_root}/radio_coex.c",
         "${sl_ot_efr32_root}/radio_extension.c",
-        "${sl_ot_efr32_root}/radio_power_manager.c",
+        "${sl_ot_efr32_root}/radio_power_manager.cpp",
         "${sl_ot_efr32_root}/sl_gp_interface.c",
         "${sl_ot_efr32_root}/sleep.c",
         "${sl_ot_efr32_root}/soft_source_match_table.c",
@@ -153,7 +152,7 @@ if (wifi_soc != true) {  # CCP board
         "${sl_ot_libs_path}/src/stubs/tcp/tcp_stubs.c",
 
         # Temporary file until the files in the SI SDK is fixed
-        "${matter_support_root}/sdk-copies/protocol/openthread/platform-abstraction/efr32/radio.c",
+        "${matter_support_root}/sdk-copies/openthread/platform-abstraction/efr32/radio.cpp",
       ]
 
       include_dirs = [
