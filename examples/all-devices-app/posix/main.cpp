@@ -93,6 +93,8 @@ public:
         DeviceLoadStatusProvider & deviceLoadStatusProvider;
         DeviceLayer::DiagnosticDataProvider & diagnosticDataProvider;
         TestEventTriggerDelegate * testEventTriggerDelegate;
+        Credentials::DeviceAttestationCredentialsProvider & dacProvider;
+        EventManagement & eventManagement;
 
 #if CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
         TermsAndConditionsProvider & termsAndConditionsProvider;
@@ -118,7 +120,8 @@ public:
                     .deviceLoadStatusProvider   = mContext.deviceLoadStatusProvider,   //
                     .diagnosticDataProvider     = mContext.diagnosticDataProvider,     //
                     .testEventTriggerDelegate   = mContext.testEventTriggerDelegate,   //
-
+                    .dacProvider                = mContext.dacProvider,                //
+                    .eventManagement            = mContext.eventManagement,            //
 #if CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
                     .termsAndConditionsProvider = mContext.termsAndConditionsProvider,
 #endif // CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
@@ -188,7 +191,7 @@ void RunApplication(AppMainLoopImplementation * mainLoop = nullptr)
     DeviceLayer::DeviceInstanceInfoProvider * provider = DeviceLayer::GetDeviceInstanceInfoProvider();
     if (provider == nullptr)
     {
-        ChipLogError(AppServer, "Failed to get the DeviceInstanceInfoProvifer.");
+        ChipLogError(AppServer, "Failed to get the DeviceInstanceInfoProvider.");
         chipDie();
     }
 
@@ -209,6 +212,8 @@ void RunApplication(AppMainLoopImplementation * mainLoop = nullptr)
             .deviceLoadStatusProvider   = *InteractionModelEngine::GetInstance(),                //
             .diagnosticDataProvider     = DeviceLayer::GetDiagnosticDataProvider(),              //
             .testEventTriggerDelegate   = initParams.testEventTriggerDelegate,                   //
+            .dacProvider     = *Credentials::Examples::GetExampleDACProvider(), //                                           //
+            .eventManagement = EventManagement::GetInstance(),                  //
 
 #if CHIP_CONFIG_TERMS_AND_CONDITIONS_REQUIRED
             .termsAndConditionsProvider = TermsAndConditionsManager::GetInstance(),
