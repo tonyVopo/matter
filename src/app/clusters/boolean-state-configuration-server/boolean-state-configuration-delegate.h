@@ -1,6 +1,6 @@
 /*
  *
- *    Copyright (c) 2023 Project CHIP Authors
+ *    Copyright (c) 2023-2026 Project CHIP Authors
  *    All rights reserved.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,16 +18,14 @@
 
 #pragma once
 
-#include "clusters/BooleanStateConfiguration/Events.h"
-#include <app-common/zap-generated/cluster-enums.h>
+#include <clusters/BooleanStateConfiguration/Enums.h>
+#include <clusters/BooleanStateConfiguration/Events.h>
 #include <lib/core/CHIPError.h>
 #include <lib/support/BitMask.h>
 
 namespace chip {
 namespace app {
 namespace Clusters {
-
-class BooleanStateConfigurationCluster;
 
 namespace BooleanStateConfiguration {
 
@@ -43,12 +41,15 @@ public:
     virtual CHIP_ERROR HandleSuppressAlarm(BooleanStateConfiguration::AlarmModeBitmap alarmToSuppress)             = 0;
     virtual CHIP_ERROR HandleEnableDisableAlarms(chip::BitMask<BooleanStateConfiguration::AlarmModeBitmap> alarms) = 0;
 
-    // Optional handler of when an attribute changed inside the cluster
-    // either as a result of a command or as a result of a attribute write.
-    //
-    // Callback will be called for boolean state configuration cluster attributes such as
-    // CurrentSensitivityLevel::Id, AlarmsActive::Id, AlarmsSuppressed::Id, AlarmsEnabled::Id and SensorFault::Id
-    virtual void OnAttributeChanged(AttributeId att, BooleanStateConfigurationCluster * cluster) {}
+    // These methods are called when the corresponding attributes are updated by the server, whether
+    //  via WriteAttribute, InvokeCommand, or direct server APIs. Default implementations are empty
+    //  override only the callbacks you need.
+
+    virtual void OnCurrentSensitivityLevelChanged(uint8_t newValue) {}
+    virtual void OnAlarmsActiveChanged(chip::BitMask<BooleanStateConfiguration::AlarmModeBitmap> newValue) {}
+    virtual void OnAlarmsSuppressedChanged(chip::BitMask<BooleanStateConfiguration::AlarmModeBitmap> newValue) {}
+    virtual void OnAlarmsEnabledChanged(chip::BitMask<BooleanStateConfiguration::AlarmModeBitmap> newValue) {}
+    virtual void OnSensorFaultChanged(chip::BitMask<BooleanStateConfiguration::SensorFaultBitmap> newValue) {}
 };
 
 } // namespace BooleanStateConfiguration
