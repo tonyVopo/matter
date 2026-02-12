@@ -182,11 +182,13 @@ public:
     const char * GetEthernetIfName() { return (mEthIfName[0] == '\0') ? nullptr : mEthIfName; }
     void UpdateEthernetNetworkingStatus();
 
-    void
-    SetNetworkStatusChangeCallback(NetworkCommissioning::Internal::BaseDriver::NetworkStatusChangeCallback * statusChangeCallback)
-    {
-        mpStatusChangeCallback = statusChangeCallback;
-    }
+    using NetworkStatusChangeCallback = NetworkCommissioning::Internal::BaseDriver::NetworkStatusChangeCallback;
+    using ScanCallback                = NetworkCommissioning::WiFiDriver::ScanCallback;
+    using ConnectCallback             = NetworkCommissioning::Internal::WirelessDriver::ConnectCallback;
+
+    void SetConnectCallback(ConnectCallback * inConnectCallback) noexcept;
+    void SetScanCallback(ScanCallback * inScanCallback) noexcept;
+    void SetNetworkStatusChangeCallback(NetworkStatusChangeCallback * inStatusChangeCallback) noexcept;
 
 #if CHIP_DEVICE_CONFIG_ENABLE_WIFI
     const char * GetWiFiIfName() { return (sWiFiIfName[0] == '\0') ? nullptr : sWiFiIfName; }
@@ -197,6 +199,17 @@ private:
 
     CHIP_ERROR _Init();
     void _OnPlatformEvent(const ChipDeviceEvent * event);
+
+#if CHIP_DEVICE_CONFIG_ENABLE_WIFI
+    // Wi-Fi Control Plane Management
+
+    // Wi-Fi Station Control Plane Management
+
+    // Introspection
+
+    bool IsWiFiStationConnecting(void) const noexcept;
+    bool IsWiFiStationScanning(void) const noexcept;
+#endif // CHIP_DEVICE_CONFIG_ENABLE_WIFI
 
 #if CHIP_DEVICE_CONFIG_ENABLE_WPA
     WiFiStationMode _GetWiFiStationMode();
@@ -255,7 +268,13 @@ private:
     std::mutex mWpaSupplicantMutex;
 
 #endif
-    NetworkCommissioning::Internal::BaseDriver::NetworkStatusChangeCallback * mpStatusChangeCallback = nullptr;
+    // Network Commissioning Action Delegation Methods
+
+    void OnScanFinished(NetworkCommissioning::Status inStatus, CharSpan inDebugText,
+                        NetworkCommissioning::WiFiScanResponseIterator * inNetworks) noexcept;
+    void OnConnectResult(NetworkCommissioning::Status inCommissioningError, CharSpan inDebugText, int32_t inConnectStatus) noexcept;
+    void OnStatusChange(NetworkCommissioning::Status inCommissioningError, Optional<ByteSpan> inNetworkId,
+                        Optional<int32_t> inConnectStatus) noexcept;
 
     // ==================== ConnectivityManager Private Methods ====================
 
@@ -287,8 +306,9 @@ private:
     uint8_t sInterestedSSID[Internal::kMaxWiFiSSIDLength];
     uint8_t sInterestedSSIDLen;
 #endif
-    NetworkCommissioning::WiFiDriver::ScanCallback * mpScanCallback;
-    NetworkCommissioning::Internal::WirelessDriver::ConnectCallback * mpConnectCallback;
+    ScanCallback * mpScanCallback;
+    ConnectCallback * mpConnectCallback;
+    NetworkStatusChangeCallback * mpStatusChangeCallback;
 };
 
 #if CHIP_DEVICE_CONFIG_ENABLE_WPA

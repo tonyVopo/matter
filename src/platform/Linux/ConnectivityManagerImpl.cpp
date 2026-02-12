@@ -63,6 +63,25 @@ ConnectivityManagerImpl & ConnectivityManagerImpl::GetDefaultInstance()
     return sInstance;
 }
 
+// MARK: Linux Implementation-specific Methods
+
+// MARK: Mutation
+
+void ConnectivityManagerImpl::SetConnectCallback(ConnectCallback * inConnectCallback) noexcept
+{
+    mpConnectCallback = inConnectCallback;
+}
+
+void ConnectivityManagerImpl::SetScanCallback(ScanCallback * inScanCallback) noexcept
+{
+    mpScanCallback = inScanCallback;
+}
+
+void ConnectivityManagerImpl::SetNetworkStatusChangeCallback(NetworkStatusChangeCallback * inStatusChangeCallback) noexcept
+{
+    mpStatusChangeCallback = inStatusChangeCallback;
+}
+
 void ConnectivityManagerImpl::UpdateEthernetNetworkingStatus()
 {
     if (mpStatusChangeCallback != nullptr)
@@ -82,8 +101,9 @@ CHIP_ERROR ConnectivityManagerImpl::_Init()
     mWiFiStationMode              = kWiFiStationMode_Disabled;
     mWiFiStationReconnectInterval = System::Clock::Milliseconds32(CHIP_DEVICE_CONFIG_WIFI_STATION_RECONNECT_INTERVAL);
 #endif
-    mpConnectCallback = nullptr;
-    mpScanCallback    = nullptr;
+    mpStatusChangeCallback = nullptr;
+    mpConnectCallback      = nullptr;
+    mpScanCallback         = nullptr;
 
     if (ConnectivityUtils::GetEthInterfaceName(mEthIfName, Inet::InterfaceId::kMaxIfNameLength) == CHIP_NO_ERROR)
     {
@@ -127,6 +147,24 @@ CHIP_ERROR ConnectivityManagerImpl::_Init()
     return CHIP_NO_ERROR;
 #endif
 }
+
+#if CHIP_DEVICE_CONFIG_ENABLE_WIFI
+// MARK: Wi-Fi Control Plane Management
+
+// MARK: Wi-Fi Station Control Plane Management
+
+// MARK: Introspection
+
+bool ConnectivityManagerImpl::IsWiFiStationConnecting(void) const noexcept
+{
+    return mpConnectCallback != nullptr;
+}
+
+bool ConnectivityManagerImpl::IsWiFiStationScanning(void) const noexcept
+{
+    return mpScanCallback != nullptr;
+}
+#endif // CHIP_DEVICE_CONFIG_ENABLE_WIFI
 
 void ConnectivityManagerImpl::_OnPlatformEvent(const ChipDeviceEvent * event)
 {
@@ -177,6 +215,39 @@ void ConnectivityManagerImpl::_OnPlatformEvent(const ChipDeviceEvent * event)
 ConnectivityManagerImpl & ConnectivityMgrImpl(void)
 {
     return ConnectivityManagerImpl::GetDefaultInstance();
+}
+
+// MARK: Network Commissioning Action Delegation Methods
+
+void ConnectivityManagerImpl::OnScanFinished(NetworkCommissioning::Status inStatus, CharSpan inDebugText,
+                                             NetworkCommissioning::WiFiScanResponseIterator * inNetworks) noexcept
+{
+    if (mpScanCallback != nullptr)
+    {
+        mpScanCallback->OnFinished(inStatus, inDebugText, inNetworks);
+
+        mpScanCallback = nullptr;
+    }
+}
+
+void ConnectivityManagerImpl::OnConnectResult(NetworkCommissioning::Status inCommissioningError, CharSpan inDebugText,
+                                              int32_t inConnectStatus) noexcept
+{
+    if (mpConnectCallback != nullptr)
+    {
+        mpConnectCallback->OnResult(inCommissioningError, inDebugText, inConnectStatus);
+
+        mpConnectCallback = nullptr;
+    }
+}
+
+void ConnectivityManagerImpl::OnStatusChange(NetworkCommissioning::Status inCommissioningError, Optional<ByteSpan> inNetworkId,
+                                             Optional<int32_t> inConnectStatus) noexcept
+{
+    if (mpStatusChangeCallback != nullptr)
+    {
+        mpStatusChangeCallback->OnNetworkingStatusChange(inCommissioningError, inNetworkId, inConnectStatus);
+    }
 }
 
 } // namespace DeviceLayer
