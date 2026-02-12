@@ -138,8 +138,8 @@ class RunnerWaitQueue:
 
 class SubprocessKind(StrEnum):
     APP = 'app'
-    TOOL = 'tool'
-    RPC = 'rpc'
+    CTRL = 'ctrl'
+    MGMT = 'mgmt'
 
 
 @dataclass

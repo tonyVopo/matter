@@ -457,9 +457,9 @@ def cmd_run(context: click.Context, dry_run: bool, iterations: int,
     handle_deprecated_pathopt('evse', evse_app, SubprocessKind.APP)
     handle_deprecated_pathopt('closure', closure_app, SubprocessKind.APP)
 
-    handle_deprecated_pathopt('matter-repl-yaml-tester', matter_repl_yaml_tester, SubprocessKind.TOOL)
-    handle_deprecated_pathopt('chip-tool-with-python', chip_tool_with_python, SubprocessKind.TOOL)
-    handle_deprecated_pathopt('chip-tool', context.obj.deprecated_chip_tool_path, SubprocessKind.TOOL)
+    handle_deprecated_pathopt('matter-repl-yaml-tester', matter_repl_yaml_tester, SubprocessKind.CTRL)
+    handle_deprecated_pathopt('chip-tool-with-python', chip_tool_with_python, SubprocessKind.CTRL)
+    handle_deprecated_pathopt('chip-tool', context.obj.deprecated_chip_tool_path, SubprocessKind.CTRL)
 
     # New-style options override the deprecated ones
     for p in app_path:
@@ -469,7 +469,7 @@ def cmd_run(context: click.Context, dry_run: bool, iterations: int,
             raise click.BadOptionUsage("app-path", f"Invalid app path specifier '{p}': {e}")
     for p in tool_path:
         try:
-            subproc_info_repo.addSpec(p, kind=SubprocessKind.TOOL)
+            subproc_info_repo.addSpec(p, kind=SubprocessKind.CTRL)
         except ValueError as e:
             raise click.BadOptionUsage("tool-path", f"Invalid tool path specifier '{p}': {e}")
 
@@ -519,11 +519,11 @@ def cmd_run(context: click.Context, dry_run: bool, iterations: int,
             to_terminate.append(ns := chiptest.linux.IsolatedNetworkNamespace(
                 index=0,
                 # Do not bring up the app interface link automatically when doing BLE-WiFi commissioning.
-                setup_app_link_up=not wifi_required,
+                app_link_up=not wifi_required,
                 add_ula=not thread_required,
                 # Change the app link name so the interface will be recognized as WiFi or Ethernet
                 # depending on the commissioning method used.
-                app_link_name='wlx-app' if wifi_required else 'eth-app'))
+                app_name='wlx-app' if wifi_required else 'eth-app'))
 
             if commissioning_method == 'ble-wifi':
                 to_terminate.append(chiptest.linux.DBusTestSystemBus())
