@@ -23,11 +23,9 @@
 
 #include <lib/support/CodeUtils.h>
 
-#if CHIP_DEVICE_CONFIG_ENABLE_THREAD_MESHCOP
-#include <lib/dnssd/minimal_mdns/ResponseBuilder.h> // nogncheck
-#include <lib/dnssd/minimal_mdns/records/Srv.h>     // nogncheck
-#include <lib/dnssd/minimal_mdns/records/Txt.h>     // nogncheck
-#endif
+#include <lib/dnssd/minimal_mdns/ResponseBuilder.h>
+#include <lib/dnssd/minimal_mdns/records/Srv.h>
+#include <lib/dnssd/minimal_mdns/records/Txt.h>
 
 namespace chip {
 namespace app {
