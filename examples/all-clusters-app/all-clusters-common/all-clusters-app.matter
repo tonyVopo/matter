@@ -3652,6 +3652,7 @@ cluster SmokeCoAlarm = 92 {
     kEndOfService = 6;
     kInterconnectSmoke = 7;
     kInterconnectCO = 8;
+    kInoperative = 9;
   }
 
   enum MuteStateEnum : enum8 {
@@ -3721,6 +3722,7 @@ cluster SmokeCoAlarm = 92 {
   readonly attribute optional ContaminationStateEnum contaminationState = 10;
   attribute access(write: manage) optional SensitivityEnum smokeSensitivityLevel = 11;
   readonly attribute optional epoch_s expiryDate = 12;
+  readonly attribute optional boolean unmounted = 13;
   readonly attribute command_id generatedCommandList[] = 65528;
   readonly attribute command_id acceptedCommandList[] = 65529;
   readonly attribute attrib_id attributeList[] = 65531;
@@ -7915,6 +7917,7 @@ endpoint 1 {
     ram      attribute contaminationState default = 0;
     ram      attribute smokeSensitivityLevel default = 1;
     ram      attribute expiryDate default = 0;
+    ram      attribute unmounted default = 0;
     ram      attribute featureMap default = 3;
     ram      attribute clusterRevision default = 1;
 

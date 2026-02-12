@@ -56150,6 +56150,7 @@ public:
 | * ContaminationState                                                | 0x000A |
 | * SmokeSensitivityLevel                                             | 0x000B |
 | * ExpiryDate                                                        | 0x000C |
+| * Unmounted                                                         | 0x000D |
 | * GeneratedCommandList                                              | 0xFFF8 |
 | * AcceptedCommandList                                               | 0xFFF9 |
 | * AttributeList                                                     | 0xFFFB |
@@ -57320,6 +57321,92 @@ public:
         return CHIP_NO_ERROR;
     }
 };
+
+#if MTR_ENABLE_PROVISIONAL
+
+/*
+ * Attribute Unmounted
+ */
+class ReadSmokeCoAlarmUnmounted : public ReadAttribute {
+public:
+    ReadSmokeCoAlarmUnmounted()
+        : ReadAttribute("unmounted")
+    {
+    }
+
+    ~ReadSmokeCoAlarmUnmounted()
+    {
+    }
+
+    CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
+    {
+        constexpr chip::ClusterId clusterId = chip::app::Clusters::SmokeCoAlarm::Id;
+        constexpr chip::AttributeId attributeId = chip::app::Clusters::SmokeCoAlarm::Attributes::Unmounted::Id;
+
+        ChipLogProgress(chipTool, "Sending cluster (0x%08" PRIX32 ") ReadAttribute (0x%08" PRIX32 ") on endpoint %u", endpointId, clusterId, attributeId);
+
+        dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL);
+        __auto_type * cluster = [[MTRBaseClusterSmokeCOAlarm alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
+        [cluster readAttributeUnmountedWithCompletion:^(NSNumber * _Nullable value, NSError * _Nullable error) {
+            NSLog(@"SmokeCOAlarm.Unmounted response %@", [value description]);
+            if (error == nil) {
+                TEMPORARY_RETURN_IGNORED RemoteDataModelLogger::LogAttributeAsJSON(@(endpointId), @(clusterId), @(attributeId), value);
+            } else {
+                LogNSError("SmokeCOAlarm Unmounted read Error", error);
+                TEMPORARY_RETURN_IGNORED RemoteDataModelLogger::LogAttributeErrorAsJSON(@(endpointId), @(clusterId), @(attributeId), error);
+            }
+            SetCommandExitStatus(error);
+        }];
+        return CHIP_NO_ERROR;
+    }
+};
+
+class SubscribeAttributeSmokeCoAlarmUnmounted : public SubscribeAttribute {
+public:
+    SubscribeAttributeSmokeCoAlarmUnmounted()
+        : SubscribeAttribute("unmounted")
+    {
+    }
+
+    ~SubscribeAttributeSmokeCoAlarmUnmounted()
+    {
+    }
+
+    CHIP_ERROR SendCommand(MTRBaseDevice * device, chip::EndpointId endpointId) override
+    {
+        constexpr chip::ClusterId clusterId = chip::app::Clusters::SmokeCoAlarm::Id;
+        constexpr chip::CommandId attributeId = chip::app::Clusters::SmokeCoAlarm::Attributes::Unmounted::Id;
+
+        ChipLogProgress(chipTool, "Sending cluster (0x%08" PRIX32 ") ReportAttribute (0x%08" PRIX32 ") on endpoint %u", clusterId, attributeId, endpointId);
+        dispatch_queue_t callbackQueue = dispatch_queue_create("com.chip.command", DISPATCH_QUEUE_SERIAL_WITH_AUTORELEASE_POOL);
+        __auto_type * cluster = [[MTRBaseClusterSmokeCOAlarm alloc] initWithDevice:device endpointID:@(endpointId) queue:callbackQueue];
+        __auto_type * params = [[MTRSubscribeParams alloc] initWithMinInterval:@(mMinInterval) maxInterval:@(mMaxInterval)];
+        if (mKeepSubscriptions.HasValue()) {
+            params.replaceExistingSubscriptions = !mKeepSubscriptions.Value();
+        }
+        if (mFabricFiltered.HasValue()) {
+            params.filterByFabric = mFabricFiltered.Value();
+        }
+        if (mAutoResubscribe.HasValue()) {
+            params.resubscribeAutomatically = mAutoResubscribe.Value();
+        }
+        [cluster subscribeAttributeUnmountedWithParams:params
+            subscriptionEstablished:^() { mSubscriptionEstablished = YES; }
+            reportHandler:^(NSNumber * _Nullable value, NSError * _Nullable error) {
+                NSLog(@"SmokeCOAlarm.Unmounted response %@", [value description]);
+                if (error == nil) {
+                    TEMPORARY_RETURN_IGNORED RemoteDataModelLogger::LogAttributeAsJSON(@(endpointId), @(clusterId), @(attributeId), value);
+                } else {
+                    TEMPORARY_RETURN_IGNORED RemoteDataModelLogger::LogAttributeErrorAsJSON(@(endpointId), @(clusterId), @(attributeId), error);
+                }
+                SetCommandExitStatus(error);
+            }];
+
+        return CHIP_NO_ERROR;
+    }
+};
+
+#endif // MTR_ENABLE_PROVISIONAL
 
 /*
  * Attribute GeneratedCommandList
@@ -197026,6 +197113,10 @@ void registerClusterSmokeCoAlarm(Commands & commands)
         make_unique<SubscribeAttributeSmokeCoAlarmSmokeSensitivityLevel>(), //
         make_unique<ReadSmokeCoAlarmExpiryDate>(), //
         make_unique<SubscribeAttributeSmokeCoAlarmExpiryDate>(), //
+#if MTR_ENABLE_PROVISIONAL
+        make_unique<ReadSmokeCoAlarmUnmounted>(), //
+        make_unique<SubscribeAttributeSmokeCoAlarmUnmounted>(), //
+#endif // MTR_ENABLE_PROVISIONAL
         make_unique<ReadSmokeCoAlarmGeneratedCommandList>(), //
         make_unique<SubscribeAttributeSmokeCoAlarmGeneratedCommandList>(), //
         make_unique<ReadSmokeCoAlarmAcceptedCommandList>(), //
