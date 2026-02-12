@@ -31,13 +31,12 @@ import coloredlogs
 from chiptest.accessories import AppsRegister
 from chiptest.glob_matcher import GlobMatcher
 from chiptest.runner import Executor, SubprocessKind
-from chiptest.test_definition import SubprocessInfoRepo, TestDefinition, TestRunTime, TestTag
+from chiptest.test_definition import TEST_THREAD_DATASET, SubprocessInfoRepo, TestDefinition, TestRunTime, TestTag
 from chipyaml.paths_finder import PathsFinder
 
 log = logging.getLogger(__name__)
 
-# If running on Linux platform load the Linux specific code.
-if sys.platform == "linux":
+if sys.platform == 'linux':
     import chiptest.linux
 
 if sys.platform == 'darwin':
@@ -534,7 +533,7 @@ def cmd_run(context: click.Context, dry_run: bool, iterations: int,
             elif commissioning_method == 'ble-thread':
                 to_terminate.append(chiptest.linux.DBusTestSystemBus())
                 to_terminate.append(chiptest.linux.BluetoothMock())
-                to_terminate.append(chiptest.linux.ThreadBorderRouter(ns))
+                to_terminate.append(chiptest.linux.ThreadBorderRouter(TEST_THREAD_DATASET, ns))
                 ble_controller_app = 0   # Bind app to the first BLE controller
                 ble_controller_tool = 1  # Bind tool to the second BLE controller
             elif commissioning_method == 'thread-meshcop':
