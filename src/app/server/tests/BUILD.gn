@@ -24,8 +24,11 @@ chip_test_suite("tests") {
   test_sources = [
     "TestJointFabricDatastore.cpp",
     "TestServerPortRetry.cpp",
-    "TestThreadRendezvousAnnouncement.cpp",
   ]
+
+  if (chip_device_config_enable_thread_meshcop) {
+    sources += [ "TestThreadRendezvousAnnouncement.cpp" ]
+  }
 
   public_deps = [
     "${chip_root}/src/app/server",
