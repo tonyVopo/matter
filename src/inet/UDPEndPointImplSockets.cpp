@@ -292,6 +292,57 @@ CHIP_ERROR UDPEndPointImplSockets::SendMsgImpl(const IPPacketInfo * aPktInfo, Sy
     // For now the entire message must fit within a single buffer.
     VerifyOrReturnError(!msg->HasChainedBuffer(), CHIP_ERROR_MESSAGE_TOO_LONG);
 
+#if INET_CONFIG_ENABLE_UDP_SOCKET_RECOVERY
+    // On platforms where sockets may become invalid when the app is backgrounded (e.g., iOS),
+    // check if the socket is still valid before attempting to send.
+    // If we detect an invalid socket, close and recreate it.
+    if (mSocket != kInvalidSocketFd)
+    {
+        int error     = 0;
+        socklen_t len = sizeof(error);
+        if (getsockopt(mSocket, SOL_SOCKET, SO_ERROR, &error, &len) == -1 || error == EPIPE || error == ENOTCONN)
+        {
+            ChipLogProgress(Inet, "UDP socket became invalid (error=%d), recreating...", error);
+            // Close the invalid socket
+            TEMPORARY_RETURN_IGNORED static_cast<System::LayerSockets *>(&GetSystemLayer())->StopWatchingSocket(&mWatch);
+            close(mSocket);
+            mSocket = kInvalidSocketFd;
+
+            // Recreate the socket and rebind
+            IPAddressType addrType = mAddrType;
+            uint16_t boundPort     = mBoundPort;
+            InterfaceId boundIntf  = mBoundIntfId;
+
+            ReturnErrorOnFailure(GetSocket(addrType));
+
+            if (boundPort != 0 || boundIntf.IsPresent())
+            {
+                // Rebind to the same port/interface
+                if (addrType == IPAddressType::kIPv6)
+                {
+                    ReturnErrorOnFailure(IPv6Bind(mSocket, IPAddress::Any, boundPort, boundIntf));
+                }
+#if INET_CONFIG_ENABLE_IPV4
+                else if (addrType == IPAddressType::kIPv4)
+                {
+                    ReturnErrorOnFailure(IPv4Bind(mSocket, IPAddress::Any, boundPort));
+                }
+#endif
+                mBoundPort   = boundPort;
+                mBoundIntfId = boundIntf;
+
+                // Re-enable listening if we were listening before
+                if (mState == State::kListening)
+                {
+                    auto * layer = static_cast<System::LayerSockets *>(&GetSystemLayer());
+                    ReturnErrorOnFailure(layer->SetCallback(mWatch, HandlePendingIO, reinterpret_cast<intptr_t>(this)));
+                    ReturnErrorOnFailure(layer->RequestCallbackOnPendingRead(mWatch));
+                }
+            }
+        }
+    }
+#endif // INET_CONFIG_ENABLE_UDP_SOCKET_RECOVERY
+
     struct iovec msgIOV;
     msgIOV.iov_base = msg->Start();
     msgIOV.iov_len  = msg->DataLength();
@@ -414,7 +465,20 @@ CHIP_ERROR UDPEndPointImplSockets::SendMsgImpl(const IPPacketInfo * aPktInfo, Sy
     const ssize_t lenSent = sendmsg(mSocket, &msgHeader, 0);
     if (lenSent == -1)
     {
-        return CHIP_ERROR_POSIX(errno);
+        CHIP_ERROR sendError = CHIP_ERROR_POSIX(errno);
+#if INET_CONFIG_ENABLE_UDP_SOCKET_RECOVERY
+        // On platforms where sockets may become invalid (e.g., iOS backgrounding),
+        // if we get EPIPE or ENOTCONN, mark the socket as invalid so it will be recreated on the next send attempt.
+        if (errno == EPIPE || errno == ENOTCONN)
+        {
+            ChipLogError(Inet, "UDP socket send failed with %s, marking socket as invalid for recreation", ErrorStr(sendError));
+            // Close the socket so it will be recreated on next use
+            TEMPORARY_RETURN_IGNORED static_cast<System::LayerSockets *>(&GetSystemLayer())->StopWatchingSocket(&mWatch);
+            close(mSocket);
+            mSocket = kInvalidSocketFd;
+        }
+#endif // INET_CONFIG_ENABLE_UDP_SOCKET_RECOVERY
+        return sendError;
     }
 
     size_t len = static_cast<size_t>(lenSent);
@@ -688,10 +752,22 @@ void UDPEndPointImplSockets::HandlePendingIO(System::SocketEvents events)
     }
     else
     {
+#if INET_CONFIG_ENABLE_UDP_SOCKET_RECOVERY
+        // Suppress transient errors that don't require user notification.
+        // EAGAIN: Resource temporarily unavailable (expected with non-blocking sockets)
+        // ENOTCONN: Socket is not connected (can occur when device is locked or app backgrounded)
+        if (OnReceiveError != nullptr && lStatus != CHIP_ERROR_POSIX(EAGAIN) && lStatus != CHIP_ERROR_POSIX(ENOTCONN))
+        {
+            OnReceiveError(this, lStatus, nullptr);
+        }
+#else
+        // Suppress transient errors that don't require user notification.
+        // EAGAIN: Resource temporarily unavailable (expected with non-blocking sockets)
         if (OnReceiveError != nullptr && lStatus != CHIP_ERROR_POSIX(EAGAIN))
         {
             OnReceiveError(this, lStatus, nullptr);
         }
+#endif // INET_CONFIG_ENABLE_UDP_SOCKET_RECOVERY
     }
 }
 
